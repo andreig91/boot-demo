@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
@@ -20,9 +21,16 @@ public class BookControllerLiveTest {
 
     private Book createRandomBook() {
         Book book = new Book();
-        book.setTitle(randomAlphabetic(10));
-        book.setAuthor(randomAlphabetic(15));
-        book.setIsbn(Long.parseLong(randomNumeric(9)));
+        book.setId(Integer.parseInt(randomNumeric(5)));
+        book.setIsbn(randomNumeric(10));
+        book.setTitle(randomAlphabetic(15));
+        book.setPublisher(Integer.parseInt(randomNumeric(5)));
+        book.setCategory(randomAlphabetic(15));
+        book.setPrice(new BigDecimal(randomNumeric(5)));
+        book.setYearpublished(Integer.parseInt(randomNumeric(4)));
+        book.setFilesize(Integer.parseInt(randomNumeric(5)));
+        book.setFormat(randomAlphabetic(15));
+        book.setQuantity(Integer.parseInt(randomNumeric(4)));
         return book;
     }
 
@@ -84,7 +92,7 @@ public class BookControllerLiveTest {
     @Test
     public void whenInvalidBook_thenError() {
         Book book = createRandomBook();
-        book.setAuthor(null);
+        book.setIsbn(null);
         Response response = RestAssured.given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(book)
@@ -97,8 +105,8 @@ public class BookControllerLiveTest {
     public void whenUpdateCreatedBook_thenUpdated() {
         Book book = createRandomBook();
         String location = createBookAsUri(book);
-        book.setId(Long.parseLong(location.split("api/books/")[1]));
-        book.setAuthor("newAuthor");
+        book.setId(Integer.parseInt(location.split("api/books/")[1]));
+        book.setYearpublished(2019);
         Response response = RestAssured.given()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .body(book)
@@ -109,8 +117,8 @@ public class BookControllerLiveTest {
         response = RestAssured.get(location);
 
         assertEquals(HttpStatus.OK.value(), response.getStatusCode());
-        assertEquals("newAuthor", response.jsonPath()
-                .get("author"));
+        assertEquals(2019, (int)response.jsonPath()
+                .get("yearpublished"));
     }
 
     @Test
